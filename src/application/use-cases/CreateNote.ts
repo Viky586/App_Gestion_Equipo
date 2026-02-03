@@ -1,0 +1,56 @@
+import { Actor } from "@/application/dto/Actor";
+import { NoteRepository } from "@/application/interfaces/NoteRepository";
+import { ProjectMemberRepository } from "@/application/interfaces/ProjectMemberRepository";
+import { ProjectRepository } from "@/application/interfaces/ProjectRepository";
+import {
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from "@/domain/errors/AppError";
+import { ProjectNote } from "@/domain/entities/ProjectNote";
+
+export interface CreateNoteInput {
+  actor: Actor;
+  projectId: string;
+  title: string;
+  content: string;
+}
+
+export class CreateNote {
+  constructor(
+    private readonly projectRepo: ProjectRepository,
+    private readonly memberRepo: ProjectMemberRepository,
+    private readonly noteRepo: NoteRepository
+  ) {}
+
+  async execute(input: CreateNoteInput): Promise<ProjectNote> {
+    if (!input.title.trim()) {
+      throw new ValidationError("Title is required.");
+    }
+    if (!input.content.trim()) {
+      throw new ValidationError("Content is required.");
+    }
+
+    const project = await this.projectRepo.findById(input.projectId);
+    if (!project) {
+      throw new NotFoundError("Project not found.");
+    }
+
+    if (input.actor.role !== "ADMIN") {
+      const isMember = await this.memberRepo.isMember(
+        input.projectId,
+        input.actor.userId
+      );
+      if (!isMember) {
+        throw new ForbiddenError("Not a member of this project.");
+      }
+    }
+
+    return this.noteRepo.create({
+      projectId: input.projectId,
+      authorId: input.actor.userId,
+      title: input.title.trim(),
+      content: input.content.trim(),
+    });
+  }
+}
