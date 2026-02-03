@@ -1,6 +1,17 @@
 # TeamHub – Portal de gestión de proyectos y equipo
 
+![CI](https://github.com/Viky586/App_Gestion_Equipo/actions/workflows/ci.yml/badge.svg)
+
 Portal con Auth, RBAC, chat, documentos y notas por proyecto. Pensado para desplegar en Vercel y usar Supabase.
+
+## Quick start
+```
+npm install
+```
+1) Crea `.env.local` con las variables de la seccion "Variables de entorno".  
+2) Ejecuta la migracion `supabase/migrations/0001_init.sql` en Supabase.  
+3) (Opcional) `npm run seed`  
+4) `npm run dev`
 
 ## Stack
 - Next.js App Router + TypeScript (strict)
