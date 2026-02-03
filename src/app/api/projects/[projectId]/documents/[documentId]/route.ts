@@ -9,7 +9,13 @@ export const runtime = "nodejs";
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { documentId: string } }
+  {
+    params,
+  }: {
+    params:
+      | { projectId: string; documentId: string }
+      | Promise<{ projectId: string; documentId: string }>;
+  }
 ) {
   try {
     const { supabase, repos, services } = await createRequestDependencies();
