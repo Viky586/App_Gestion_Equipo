@@ -3,19 +3,13 @@ import { createRequestDependencies } from "@/infrastructure/di/createDependencie
 import { requireActor } from "@/presentation/routes/auth";
 import { jsonError } from "@/presentation/routes/http";
 import { DeleteDocument } from "@/application/use-cases/DeleteDocument";
-import { getUuidParam } from "@/presentation/routes/params";
+import { getUuidParam, RouteContext } from "@/presentation/routes/params";
 
 export const runtime = "nodejs";
 
 export async function DELETE(
   _request: Request,
-  {
-    params,
-  }: {
-    params:
-      | { projectId: string; documentId: string }
-      | Promise<{ projectId: string; documentId: string }>;
-  }
+  { params }: RouteContext<{ projectId: string; documentId: string }>
 ) {
   try {
     const { supabase, repos, services } = await createRequestDependencies();

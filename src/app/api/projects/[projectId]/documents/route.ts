@@ -4,13 +4,13 @@ import { requireActor } from "@/presentation/routes/auth";
 import { jsonError } from "@/presentation/routes/http";
 import { UploadDocument } from "@/application/use-cases/UploadDocument";
 import { ForbiddenError, ValidationError } from "@/domain/errors/AppError";
-import { getUuidParam } from "@/presentation/routes/params";
+import { getUuidParam, RouteContext } from "@/presentation/routes/params";
 
 export const runtime = "nodejs";
 
 export async function GET(
   _request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos, services } = await createRequestDependencies();
@@ -46,7 +46,7 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos, services } = await createRequestDependencies();

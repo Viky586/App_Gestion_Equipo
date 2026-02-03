@@ -5,11 +5,11 @@ import { jsonError } from "@/presentation/routes/http";
 import { updateNoteSchema } from "@/presentation/validation/schemas";
 import { UpdateNote } from "@/application/use-cases/UpdateNote";
 import { DeleteNote } from "@/application/use-cases/DeleteNote";
-import { getUuidParam } from "@/presentation/routes/params";
+import { getUuidParam, RouteContext } from "@/presentation/routes/params";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { noteId: string } }
+  { params }: RouteContext<{ projectId: string; noteId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();
@@ -31,7 +31,7 @@ export async function PATCH(
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: { noteId: string } }
+  { params }: RouteContext<{ projectId: string; noteId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();

@@ -5,11 +5,11 @@ import { jsonError } from "@/presentation/routes/http";
 import { createNoteSchema } from "@/presentation/validation/schemas";
 import { CreateNote } from "@/application/use-cases/CreateNote";
 import { ForbiddenError } from "@/domain/errors/AppError";
-import { getUuidParam } from "@/presentation/routes/params";
+import { getUuidParam, RouteContext } from "@/presentation/routes/params";
 
 export async function GET(
   _request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();
@@ -33,7 +33,7 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();

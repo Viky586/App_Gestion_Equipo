@@ -5,11 +5,11 @@ import { jsonError } from "@/presentation/routes/http";
 import { assignUserSchema } from "@/presentation/validation/schemas";
 import { AssignUserToProject } from "@/application/use-cases/AssignUserToProject";
 import { ForbiddenError } from "@/domain/errors/AppError";
-import { getUuidParam } from "@/presentation/routes/params";
+import { getUuidParam, RouteContext } from "@/presentation/routes/params";
 
 export async function POST(
   request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();
@@ -34,7 +34,7 @@ export async function POST(
 
 export async function GET(
   _request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();
@@ -58,7 +58,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { projectId: string } }
+  { params }: RouteContext<{ projectId: string }>
 ) {
   try {
     const { supabase, repos } = await createRequestDependencies();
