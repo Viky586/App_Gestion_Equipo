@@ -2,21 +2,24 @@ import { NextResponse } from "next/server";
 import { createRequestDependencies } from "@/infrastructure/di/createDependencies";
 import { requireActor } from "@/presentation/routes/auth";
 import { jsonError } from "@/presentation/routes/http";
-import { createCollaboratorSchema } from "@/presentation/validation/schemas";
-import { CreateCollaborator } from "@/application/use-cases/CreateCollaborator";
+import { inviteUserSchema } from "@/presentation/validation/schemas";
+import { InviteUser } from "@/application/use-cases/InviteUser";
 import { ForbiddenError } from "@/domain/errors/AppError";
 
 export async function POST(request: Request) {
   try {
     const { supabase, repos, services } = await createRequestDependencies();
     const actor = await requireActor(supabase, repos.users);
-    const payload = createCollaboratorSchema.parse(await request.json());
-    const useCase = new CreateCollaborator(services.authAdmin, repos.users);
+    const payload = inviteUserSchema.parse(await request.json());
+    const useCase = new InviteUser(services.authAdmin, repos.users);
+    const origin =
+      process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
+    const redirectTo = `${origin}/accept-invite`;
     const result = await useCase.execute({
       actor,
       email: payload.email,
-      password: payload.password,
-      fullName: payload.fullName,
+      role: payload.role,
+      redirectTo,
     });
     return NextResponse.json({ data: result }, { status: 201 });
   } catch (error) {
@@ -31,7 +34,7 @@ export async function GET() {
     if (actor.role !== "ADMIN") {
       throw new ForbiddenError("Admins only.");
     }
-    const users = await repos.users.listCollaborators();
+    const users = await repos.users.listUsers();
     return NextResponse.json({ data: users });
   } catch (error) {
     return jsonError(error);

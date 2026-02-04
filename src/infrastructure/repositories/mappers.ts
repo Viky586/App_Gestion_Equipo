@@ -92,7 +92,7 @@ export const mapDocument = (row: DocumentRow): ProjectDocument => ({
 export const mapUser = (row: UserRow): User => ({
   id: row.id,
   email: row.email,
-  fullName: row.full_name,
+  fullName: row.full_name?.trim() ? row.full_name : null,
   role: row.role,
   createdAt: row.created_at,
   updatedAt: row.updated_at,

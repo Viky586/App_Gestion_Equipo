@@ -16,6 +16,7 @@ type Project = {
 type Message = {
   id: string;
   authorId: string;
+  authorName?: string;
   content: string;
   createdAt: string;
 };
@@ -185,7 +186,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <div className="max-h-80 space-y-2 overflow-y-auto rounded-md border p-3">
                 {messages.map((msg) => (
                   <div key={msg.id} className="text-sm">
-                    <span className="font-medium">{msg.authorId}</span>: {msg.content}
+                    <span className="font-medium">
+                      {msg.authorName ?? msg.authorId}
+                    </span>
+                    : {msg.content}
                   </div>
                 ))}
                 {messages.length === 0 ? (

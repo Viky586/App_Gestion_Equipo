@@ -28,10 +28,20 @@ export const updateNoteSchema = z.object({
   content: z.string().min(1).optional(),
 });
 
-export const createCollaboratorSchema = z.object({
+export const inviteUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
-  fullName: z.string().min(1),
+  role: z.enum(["ADMIN", "COLLAB"]),
 });
 
-export const uuidParamSchema = z.string().uuid("ID inválido");
+export const acceptInviteSchema = z
+  .object({
+    fullName: z.string().min(1),
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Las contrasenas no coinciden.",
+  });
+
+export const uuidParamSchema = z.string().uuid("ID invalido");

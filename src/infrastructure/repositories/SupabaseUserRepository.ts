@@ -27,13 +27,22 @@ export class SupabaseUserRepository implements UserRepository {
     return data ? mapUser(data) : null;
   }
 
-  async listCollaborators() {
+  async listUsers() {
     const { data, error } = await this.client
       .from("profiles")
       .select("*")
-      .eq("role", "COLLAB")
       .order("created_at", { ascending: false });
-    assertSupabase(error, "Failed to list collaborators");
+    assertSupabase(error, "Failed to list users");
+    return (data ?? []).map(mapUser);
+  }
+
+  async findByIds(ids: string[]) {
+    if (ids.length === 0) return [];
+    const { data, error } = await this.client
+      .from("profiles")
+      .select("*")
+      .in("id", ids);
+    assertSupabase(error, "Failed to fetch users");
     return (data ?? []).map(mapUser);
   }
 

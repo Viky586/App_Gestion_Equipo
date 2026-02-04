@@ -7,4 +7,9 @@ export interface AuthAdminService {
     fullName: string;
     role: Role;
   }): Promise<{ userId: string }>;
+  inviteUserByEmail(data: {
+    email: string;
+    role: Role;
+    redirectTo: string;
+  }): Promise<{ userId: string }>;
 }

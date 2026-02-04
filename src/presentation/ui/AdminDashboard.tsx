@@ -23,12 +23,11 @@ type User = {
 
 export function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [collaborators, setCollaborators] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
-  const [collabEmail, setCollabEmail] = useState("");
-  const [collabPassword, setCollabPassword] = useState("");
-  const [collabFullName, setCollabFullName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"ADMIN" | "COLLAB">("COLLAB");
   const [selectedProject, setSelectedProject] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +43,7 @@ export function AdminDashboard() {
     }
     if (usersRes.ok) {
       const { data } = await usersRes.json();
-      setCollaborators(data);
+      setUsers(data);
     }
   };
 
@@ -73,25 +72,23 @@ export function AdminDashboard() {
     await loadData();
   };
 
-  const handleCreateCollaborator = async () => {
+  const handleInviteUser = async () => {
     setError(null);
     const response = await fetch("/api/admin/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: collabEmail,
-        password: collabPassword,
-        fullName: collabFullName,
+        email: inviteEmail,
+        role: inviteRole,
       }),
     });
     if (!response.ok) {
       const payload = await response.json();
-      setError(payload.error?.message ?? "No se pudo crear el colaborador.");
+      setError(payload.error?.message ?? "No se pudo enviar la invitacion.");
       return;
     }
-    setCollabEmail("");
-    setCollabPassword("");
-    setCollabFullName("");
+    setInviteEmail("");
+    setInviteRole("COLLAB");
     await loadData();
   };
 
@@ -178,22 +175,30 @@ export function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Nuevo colaborador</CardTitle>
+            <CardTitle>Invitar usuario</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value={collabEmail} onChange={(e) => setCollabEmail(e.target.value)} />
+              <Input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Nombre completo</Label>
-              <Input value={collabFullName} onChange={(e) => setCollabFullName(e.target.value)} />
+              <Label>Rol</Label>
+              <select
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={inviteRole}
+                onChange={(e) =>
+                  setInviteRole(e.target.value === "ADMIN" ? "ADMIN" : "COLLAB")
+                }
+              >
+                <option value="COLLAB">Colaborador</option>
+                <option value="ADMIN">Admin</option>
+              </select>
             </div>
-            <div className="space-y-2">
-              <Label>Password temporal</Label>
-              <Input type="password" value={collabPassword} onChange={(e) => setCollabPassword(e.target.value)} />
-            </div>
-            <Button onClick={handleCreateCollaborator}>Crear colaborador</Button>
+            <p className="text-xs text-muted-foreground">
+              Se enviara un email para definir nombre y contraseña.
+            </p>
+            <Button onClick={handleInviteUser}>Enviar invitacion</Button>
           </CardContent>
         </Card>
 
@@ -225,9 +230,9 @@ export function AdminDashboard() {
                 onChange={(e) => setSelectedUser(e.target.value)}
               >
                 <option value="">Selecciona</option>
-                {collaborators.map((user) => (
+                {users.map((user) => (
                   <option key={user.id} value={user.id}>
-                    {user.fullName ?? user.email}
+                    {user.fullName ?? user.email} ({user.role})
                   </option>
                 ))}
               </select>

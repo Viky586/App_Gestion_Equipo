@@ -25,7 +25,16 @@ export async function GET(
       }
     }
     const messages = await repos.messages.listByProject(projectId);
-    return NextResponse.json({ data: messages });
+    const authorIds = Array.from(new Set(messages.map((m) => m.authorId)));
+    const users = await repos.users.findByIds(authorIds);
+    const nameMap = new Map(
+      users.map((user) => [user.id, user.fullName ?? user.email])
+    );
+    const data = messages.map((message) => ({
+      ...message,
+      authorName: nameMap.get(message.authorId) ?? message.authorId,
+    }));
+    return NextResponse.json({ data });
   } catch (error) {
     return jsonError(error);
   }

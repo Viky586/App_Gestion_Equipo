@@ -37,7 +37,7 @@ if (!supabaseUrl || !serviceRoleKey) {
 
 const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@teamhub.dev";
 const adminPassword = process.env.SEED_ADMIN_PASSWORD || "ChangeMe123!";
-const adminName = process.env.SEED_ADMIN_NAME || "Admin Seed";
+const adminName = process.env.SEED_ADMIN_NAME || "Admin";
 
 const collabEmail = process.env.SEED_COLLAB_EMAIL || "collab@teamhub.dev";
 const collabPassword = process.env.SEED_COLLAB_PASSWORD || "ChangeMe123!";
@@ -48,17 +48,24 @@ const projectName = process.env.SEED_PROJECT_NAME || "Proyecto Seed";
 async function ensureUser(client, { email, password, fullName, role }) {
   const { data: existingProfile, error: profileError } = await client
     .from("profiles")
-    .select("id, role")
+    .select("id, role, full_name")
     .eq("email", email)
     .maybeSingle();
   if (profileError) {
     throw new Error(profileError.message);
   }
   if (existingProfile?.id) {
+    const updates = {};
     if (existingProfile.role !== role) {
+      updates.role = role;
+    }
+    if (fullName && existingProfile.full_name !== fullName) {
+      updates.full_name = fullName;
+    }
+    if (Object.keys(updates).length > 0) {
       const { error: roleError } = await client
         .from("profiles")
-        .update({ role })
+        .update(updates)
         .eq("id", existingProfile.id);
       if (roleError) {
         throw new Error(roleError.message);

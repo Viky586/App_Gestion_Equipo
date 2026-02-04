@@ -25,4 +25,22 @@ export class SupabaseAuthAdminService implements AuthAdminService {
     }
     return { userId: result.user.id };
   }
+
+  async inviteUserByEmail(data: {
+    email: string;
+    role: Role;
+    redirectTo: string;
+  }) {
+    const { data: result, error } =
+      await this.client.auth.admin.inviteUserByEmail(data.email, {
+        redirectTo: data.redirectTo,
+        data: {
+          role: data.role,
+        },
+      });
+    if (error || !result.user) {
+      throw new Error(`Failed to invite user: ${error?.message ?? ""}`);
+    }
+    return { userId: result.user.id };
+  }
 }

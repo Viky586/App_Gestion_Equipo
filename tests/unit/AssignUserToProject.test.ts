@@ -82,7 +82,11 @@ class InMemoryUserRepo implements UserRepository {
     void _email;
     return null;
   }
-  async listCollaborators() {
+  async listUsers() {
+    return [];
+  }
+  async findByIds(_ids: string[]) {
+    void _ids;
     return [];
   }
   async updateRole(_id: string, _role: "ADMIN" | "COLLAB") {
