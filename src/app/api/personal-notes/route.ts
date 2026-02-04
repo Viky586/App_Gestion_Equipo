@@ -24,7 +24,6 @@ export async function POST(request: Request) {
     const useCase = new CreatePersonalNote(repos.personalNotes);
     const note = await useCase.execute({
       actor,
-      title: payload.title,
       content: payload.content,
     });
     return NextResponse.json({ data: note }, { status: 201 });

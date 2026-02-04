@@ -33,8 +33,8 @@ export function ProjectsOverview() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nombre</TableHead>
-                <TableHead>DescripciÃ³n</TableHead>
-                <TableHead>AcciÃ³n</TableHead>
+                <TableHead>Descripcion</TableHead>
+                <TableHead>Accion</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

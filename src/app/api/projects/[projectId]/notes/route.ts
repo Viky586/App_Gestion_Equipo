@@ -57,7 +57,6 @@ export async function POST(
     const note = await useCase.execute({
       actor,
       projectId,
-      title: payload.title,
       content: payload.content,
     });
     return NextResponse.json({ data: note }, { status: 201 });

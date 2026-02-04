@@ -9,7 +9,6 @@ export class SupabaseNoteRepository implements NoteRepository {
   async create(data: {
     projectId: string;
     authorId: string;
-    title: string;
     content: string;
   }) {
     const { data: row, error } = await this.client
@@ -17,7 +16,6 @@ export class SupabaseNoteRepository implements NoteRepository {
       .insert({
         project_id: data.projectId,
         author_id: data.authorId,
-        title: data.title,
         content: data.content,
       })
       .select("*")
@@ -26,11 +24,10 @@ export class SupabaseNoteRepository implements NoteRepository {
     return mapNote(row);
   }
 
-  async update(id: string, data: { title?: string; content?: string }) {
+  async update(id: string, data: { content?: string }) {
     const { data: row, error } = await this.client
       .from("project_notes")
       .update({
-        ...(data.title ? { title: data.title } : {}),
         ...(data.content ? { content: data.content } : {}),
       })
       .eq("id", id)

@@ -19,22 +19,18 @@ export const createMessageSchema = z.object({
 });
 
 export const createNoteSchema = z.object({
-  title: z.string().min(1, "El titulo es obligatorio."),
   content: z.string().min(1, "El contenido es obligatorio."),
 });
 
 export const updateNoteSchema = z.object({
-  title: z.string().min(1, "El titulo es obligatorio.").optional(),
   content: z.string().min(1, "El contenido es obligatorio.").optional(),
 });
 
 export const createPersonalNoteSchema = z.object({
-  title: z.string().min(1, "El titulo es obligatorio."),
   content: z.string().min(1, "El contenido es obligatorio."),
 });
 
 export const updatePersonalNoteSchema = z.object({
-  title: z.string().min(1, "El titulo es obligatorio.").optional(),
   content: z.string().min(1, "El contenido es obligatorio.").optional(),
 });
 

@@ -10,7 +10,6 @@ import { ProjectNote } from "@/domain/entities/ProjectNote";
 export interface UpdateNoteInput {
   actor: Actor;
   noteId: string;
-  title?: string;
   content?: string;
 }
 
@@ -18,7 +17,7 @@ export class UpdateNote {
   constructor(private readonly noteRepo: NoteRepository) {}
 
   async execute(input: UpdateNoteInput): Promise<ProjectNote> {
-    if (!input.title && !input.content) {
+    if (!input.content) {
       throw new ValidationError("No hay cambios para actualizar.");
     }
 
@@ -32,7 +31,6 @@ export class UpdateNote {
     }
 
     return this.noteRepo.update(input.noteId, {
-      title: input.title?.trim(),
       content: input.content?.trim(),
     });
   }

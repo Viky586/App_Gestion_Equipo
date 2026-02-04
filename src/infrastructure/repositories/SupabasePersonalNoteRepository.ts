@@ -6,12 +6,11 @@ import { assertSupabase } from "@/infrastructure/repositories/supabaseUtils";
 export class SupabasePersonalNoteRepository implements PersonalNoteRepository {
   constructor(private readonly client: SupabaseClient) {}
 
-  async create(data: { userId: string; title: string; content: string }) {
+  async create(data: { userId: string; content: string }) {
     const { data: row, error } = await this.client
       .from("personal_notes")
       .insert({
         user_id: data.userId,
-        title: data.title,
         content: data.content,
       })
       .select("*")
@@ -20,11 +19,10 @@ export class SupabasePersonalNoteRepository implements PersonalNoteRepository {
     return mapPersonalNote(row);
   }
 
-  async update(id: string, data: { title?: string; content?: string }) {
+  async update(id: string, data: { content?: string }) {
     const { data: row, error } = await this.client
       .from("personal_notes")
       .update({
-        ...(data.title !== undefined ? { title: data.title } : {}),
         ...(data.content !== undefined ? { content: data.content } : {}),
       })
       .eq("id", id)

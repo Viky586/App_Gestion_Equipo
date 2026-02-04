@@ -2,20 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 type PersonalNote = {
   id: string;
-  title: string;
   content: string;
   updatedAt: string;
 };
 
 export function PersonalNotesPanel() {
   const [notes, setNotes] = useState<PersonalNote[]>([]);
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -43,27 +40,24 @@ export function PersonalNotesPanel() {
     const res = await fetch("/api/personal-notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ content }),
     });
     if (!res.ok) {
       const payload = await res.json();
       setError(payload.error?.message ?? "No se pudo guardar la nota.");
       return;
     }
-    setTitle("");
     setContent("");
     await loadNotes();
   };
 
   const handleEdit = async (note: PersonalNote) => {
-    const nextTitle = window.prompt("Nuevo titulo", note.title);
-    if (!nextTitle) return;
     const nextContent = window.prompt("Nuevo contenido", note.content);
     if (!nextContent) return;
     const res = await fetch(`/api/personal-notes/${note.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: nextTitle, content: nextContent }),
+      body: JSON.stringify({ content: nextContent }),
     });
     if (!res.ok) {
       const payload = await res.json();
@@ -93,11 +87,6 @@ export function PersonalNotesPanel() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Input
-            placeholder="Titulo"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
           <Textarea
             placeholder="Escribe una nota privada..."
             value={content}
@@ -112,10 +101,7 @@ export function PersonalNotesPanel() {
         <div className="grid gap-3 md:grid-cols-2">
           {notes.map((note) => (
             <Card key={note.id}>
-              <CardHeader>
-                <CardTitle className="text-base">{note.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-2 pt-6">
                 <p className="text-sm text-muted-foreground">
                   {note.content}
                 </p>

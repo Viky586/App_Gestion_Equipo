@@ -20,7 +20,6 @@ export async function PATCH(
     const note = await useCase.execute({
       actor,
       noteId,
-      title: payload.title,
       content: payload.content,
     });
     return NextResponse.json({ data: note });

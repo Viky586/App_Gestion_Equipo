@@ -4,12 +4,11 @@ export interface NoteRepository {
   create(data: {
     projectId: string;
     authorId: string;
-    title: string;
     content: string;
   }): Promise<ProjectNote>;
   update(
     id: string,
-    data: { title?: string; content?: string }
+    data: { content?: string }
   ): Promise<ProjectNote>;
   delete(id: string): Promise<void>;
   findById(id: string): Promise<ProjectNote | null>;

@@ -26,7 +26,6 @@ type NoteRow = {
   id: string;
   project_id: string;
   author_id: string;
-  title: string;
   content: string;
   created_at: string;
   updated_at: string;
@@ -35,7 +34,6 @@ type NoteRow = {
 type PersonalNoteRow = {
   id: string;
   user_id: string;
-  title: string;
   content: string;
   created_at: string;
   updated_at: string;
@@ -84,7 +82,6 @@ export const mapNote = (row: NoteRow): ProjectNote => ({
   id: row.id,
   projectId: row.project_id,
   authorId: row.author_id,
-  title: row.title,
   content: row.content,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
@@ -93,7 +90,6 @@ export const mapNote = (row: NoteRow): ProjectNote => ({
 export const mapPersonalNote = (row: PersonalNoteRow): PersonalNote => ({
   id: row.id,
   userId: row.user_id,
-  title: row.title,
   content: row.content,
   createdAt: row.created_at,
   updatedAt: row.updated_at,

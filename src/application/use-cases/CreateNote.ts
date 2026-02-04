@@ -12,7 +12,6 @@ import { ProjectNote } from "@/domain/entities/ProjectNote";
 export interface CreateNoteInput {
   actor: Actor;
   projectId: string;
-  title: string;
   content: string;
 }
 
@@ -24,9 +23,6 @@ export class CreateNote {
   ) {}
 
   async execute(input: CreateNoteInput): Promise<ProjectNote> {
-    if (!input.title.trim()) {
-      throw new ValidationError("El titulo es obligatorio.");
-    }
     if (!input.content.trim()) {
       throw new ValidationError("El contenido es obligatorio.");
     }
@@ -49,7 +45,6 @@ export class CreateNote {
     return this.noteRepo.create({
       projectId: input.projectId,
       authorId: input.actor.userId,
-      title: input.title.trim(),
       content: input.content.trim(),
     });
   }
