@@ -6,6 +6,7 @@ export interface DocumentRepository {
     authorId: string;
     storagePath: string;
     originalName: string;
+    description: string;
     mimeType: string;
     sizeBytes: number;
   }): Promise<ProjectDocument>;

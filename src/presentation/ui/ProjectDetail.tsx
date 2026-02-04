@@ -36,6 +36,7 @@ type DocumentItem = {
   signedUrl: string;
   authorId: string;
   authorName?: string;
+  description: string;
   createdAt: string;
 };
 
@@ -49,6 +50,9 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [documentDescription, setDocumentDescription] = useState("");
+  const [documentError, setDocumentError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const loadProject = async () => {
     if (!projectId) {
@@ -91,6 +95,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   };
 
   useEffect(() => {
+    fetch("/api/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => setCurrentUserId(payload?.data?.id ?? null))
+      .catch(() => null);
     loadProject();
     loadMessages();
     loadNotes();
@@ -141,14 +149,21 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   };
 
   const handleUpload = async (file: File) => {
+    if (!documentDescription.trim()) {
+      setDocumentError("La descripcion es obligatoria.");
+      return;
+    }
+    setDocumentError(null);
     setUploading(true);
     const form = new FormData();
     form.append("file", file);
+    form.append("description", documentDescription.trim());
     await fetch(`/api/projects/${projectId}/documents`, {
       method: "POST",
       body: form,
     });
     setUploading(false);
+    setDocumentDescription("");
     await loadDocuments();
   };
 
@@ -215,6 +230,21 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         <TabsContent value="documents" className="space-y-4">
           <Card>
             <CardContent className="space-y-3 pt-6">
+              <div className="space-y-2">
+                <Input
+                  placeholder="Descripcion del documento"
+                  value={documentDescription}
+                  onChange={(e) => {
+                    setDocumentDescription(e.target.value);
+                    if (documentError) {
+                      setDocumentError(null);
+                    }
+                  }}
+                />
+                {documentError ? (
+                  <p className="text-sm text-destructive">{documentError}</p>
+                ) : null}
+              </div>
               <Input
                 type="file"
                 onChange={(e) => {
@@ -243,6 +273,9 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                         Eliminar
                       </Button>
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      {doc.description}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Subido por {doc.authorName ?? doc.authorId}
                     </p>
@@ -284,12 +317,24 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                     Autor: {note.authorName ?? note.authorId}
                   </p>
                   <div className="flex gap-2">
-                    <Button variant="secondary" size="sm" onClick={() => handleEditNote(note)}>
-                      Editar
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteNote(note.id)}>
-                      Eliminar
-                    </Button>
+                    {currentUserId === note.authorId ? (
+                      <>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleEditNote(note)}
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteNote(note.id)}
+                        >
+                          Eliminar
+                        </Button>
+                      </>
+                    ) : null}
                   </div>
                 </CardContent>
               </Card>

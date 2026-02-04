@@ -60,8 +60,12 @@ export async function POST(
     const projectId = await getUuidParam(params, "projectId");
     const form = await request.formData();
     const file = form.get("file");
+    const descriptionValue = form.get("description");
     if (!(file instanceof File)) {
       throw new ValidationError("El archivo es obligatorio.");
+    }
+    if (typeof descriptionValue !== "string" || !descriptionValue.trim()) {
+      throw new ValidationError("La descripcion es obligatoria.");
     }
 
     const buffer = await file.arrayBuffer();
@@ -76,6 +80,7 @@ export async function POST(
       projectId,
       file: buffer,
       originalName: file.name,
+      description: descriptionValue.trim(),
       mimeType: file.type || "application/octet-stream",
       sizeBytes: file.size,
     });

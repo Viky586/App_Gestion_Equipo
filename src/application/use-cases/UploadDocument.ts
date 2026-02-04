@@ -15,6 +15,7 @@ export interface UploadDocumentInput {
   projectId: string;
   file: ArrayBuffer;
   originalName: string;
+  description: string;
   mimeType: string;
   sizeBytes: number;
 }
@@ -30,6 +31,9 @@ export class UploadDocument {
   async execute(input: UploadDocumentInput): Promise<ProjectDocument> {
     if (!input.originalName.trim()) {
       throw new ValidationError("El nombre del archivo es obligatorio.");
+    }
+    if (!input.description.trim()) {
+      throw new ValidationError("La descripcion es obligatoria.");
     }
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
@@ -57,6 +61,7 @@ export class UploadDocument {
       authorId: input.actor.userId,
       storagePath,
       originalName: input.originalName,
+      description: input.description.trim(),
       mimeType: input.mimeType,
       sizeBytes: input.sizeBytes,
     });

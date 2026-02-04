@@ -11,6 +11,7 @@ export class SupabaseDocumentRepository implements DocumentRepository {
     authorId: string;
     storagePath: string;
     originalName: string;
+    description: string;
     mimeType: string;
     sizeBytes: number;
   }) {
@@ -21,6 +22,7 @@ export class SupabaseDocumentRepository implements DocumentRepository {
         author_id: data.authorId,
         storage_path: data.storagePath,
         original_name: data.originalName,
+        description: data.description,
         mime_type: data.mimeType,
         size_bytes: data.sizeBytes,
       })

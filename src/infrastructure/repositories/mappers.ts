@@ -37,6 +37,7 @@ type DocumentRow = {
   author_id: string;
   storage_path: string;
   original_name: string;
+  description: string;
   mime_type: string;
   size_bytes: number;
   created_at: string;
@@ -84,6 +85,7 @@ export const mapDocument = (row: DocumentRow): ProjectDocument => ({
   authorId: row.author_id,
   storagePath: row.storage_path,
   originalName: row.original_name,
+  description: row.description,
   mimeType: row.mime_type,
   sizeBytes: row.size_bytes,
   createdAt: row.created_at,

@@ -27,7 +27,7 @@ export class UpdateNote {
       throw new NotFoundError("Nota no encontrada.");
     }
 
-    if (input.actor.role !== "ADMIN" && note.authorId !== input.actor.userId) {
+    if (note.authorId !== input.actor.userId) {
       throw new ForbiddenError("Solo el autor puede actualizar esta nota.");
     }
 
