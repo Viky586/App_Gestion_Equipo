@@ -96,6 +96,9 @@ class InMemoryMessageRepo implements MessageRepository {
     void _projectId;
     return [];
   }
+  async deleteByProject(_projectId: string) {
+    void _projectId;
+  }
 }
 
 describe("PostProjectMessage", () => {
