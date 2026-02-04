@@ -12,12 +12,12 @@ export class DeleteProject {
 
   async execute(input: DeleteProjectInput): Promise<void> {
     if (input.actor.role !== "ADMIN") {
-      throw new ForbiddenError("Only admins can delete projects.");
+      throw new ForbiddenError("Solo administradores pueden eliminar proyectos.");
     }
 
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
-      throw new NotFoundError("Project not found.");
+      throw new NotFoundError("Proyecto no encontrado.");
     }
 
     await this.projectRepo.delete(input.projectId);

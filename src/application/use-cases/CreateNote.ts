@@ -25,15 +25,15 @@ export class CreateNote {
 
   async execute(input: CreateNoteInput): Promise<ProjectNote> {
     if (!input.title.trim()) {
-      throw new ValidationError("Title is required.");
+      throw new ValidationError("El titulo es obligatorio.");
     }
     if (!input.content.trim()) {
-      throw new ValidationError("Content is required.");
+      throw new ValidationError("El contenido es obligatorio.");
     }
 
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
-      throw new NotFoundError("Project not found.");
+      throw new NotFoundError("Proyecto no encontrado.");
     }
 
     if (input.actor.role !== "ADMIN") {
@@ -42,7 +42,7 @@ export class CreateNote {
         input.actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
 

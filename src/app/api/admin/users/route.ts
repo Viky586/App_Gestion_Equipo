@@ -32,7 +32,7 @@ export async function GET() {
     const { supabase, repos } = await createRequestDependencies();
     const actor = await requireActor(supabase, repos.users);
     if (actor.role !== "ADMIN") {
-      throw new ForbiddenError("Admins only.");
+      throw new ForbiddenError("Solo administradores.");
     }
     const users = await repos.users.listUsers();
     return NextResponse.json({ data: users });

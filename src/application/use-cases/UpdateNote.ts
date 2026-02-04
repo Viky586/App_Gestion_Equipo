@@ -19,16 +19,16 @@ export class UpdateNote {
 
   async execute(input: UpdateNoteInput): Promise<ProjectNote> {
     if (!input.title && !input.content) {
-      throw new ValidationError("Nothing to update.");
+      throw new ValidationError("No hay cambios para actualizar.");
     }
 
     const note = await this.noteRepo.findById(input.noteId);
     if (!note) {
-      throw new NotFoundError("Note not found.");
+      throw new NotFoundError("Nota no encontrada.");
     }
 
     if (input.actor.role !== "ADMIN" && note.authorId !== input.actor.userId) {
-      throw new ForbiddenError("Only the author can update this note.");
+      throw new ForbiddenError("Solo el autor puede actualizar esta nota.");
     }
 
     return this.noteRepo.update(input.noteId, {

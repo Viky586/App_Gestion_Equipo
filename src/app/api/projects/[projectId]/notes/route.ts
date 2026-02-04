@@ -21,11 +21,20 @@ export async function GET(
         actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
     const notes = await repos.notes.listByProject(projectId);
-    return NextResponse.json({ data: notes });
+    const authorIds = Array.from(new Set(notes.map((note) => note.authorId)));
+    const users = await repos.users.findByIds(authorIds);
+    const nameMap = new Map(
+      users.map((user) => [user.id, user.fullName ?? user.email])
+    );
+    const data = notes.map((note) => ({
+      ...note,
+      authorName: nameMap.get(note.authorId) ?? note.authorId,
+    }));
+    return NextResponse.json({ data });
   } catch (error) {
     return jsonError(error);
   }

@@ -25,12 +25,12 @@ export class PostProjectMessage {
   async execute(input: PostProjectMessageInput): Promise<ProjectMessage> {
     const content = input.content.trim();
     if (!content) {
-      throw new ValidationError("Message content is required.");
+      throw new ValidationError("El mensaje es obligatorio.");
     }
 
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
-      throw new NotFoundError("Project not found.");
+      throw new NotFoundError("Proyecto no encontrado.");
     }
 
     if (input.actor.role !== "ADMIN") {
@@ -39,7 +39,7 @@ export class PostProjectMessage {
         input.actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
 

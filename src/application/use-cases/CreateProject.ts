@@ -18,11 +18,11 @@ export class CreateProject {
 
   async execute(input: CreateProjectInput): Promise<Project> {
     if (input.actor.role !== "ADMIN") {
-      throw new ForbiddenError("Only admins can create projects.");
+      throw new ForbiddenError("Solo administradores pueden crear proyectos.");
     }
     const name = input.name.trim();
     if (!name) {
-      throw new ValidationError("Project name is required.");
+      throw new ValidationError("El nombre del proyecto es obligatorio.");
     }
 
     const project = await this.projectRepo.create({

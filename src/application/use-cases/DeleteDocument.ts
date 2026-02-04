@@ -17,10 +17,10 @@ export class DeleteDocument {
   async execute(input: DeleteDocumentInput): Promise<void> {
     const doc = await this.documentRepo.findById(input.documentId);
     if (!doc) {
-      throw new NotFoundError("Document not found.");
+      throw new NotFoundError("Documento no encontrado.");
     }
     if (input.actor.role !== "ADMIN" && doc.authorId !== input.actor.userId) {
-      throw new ForbiddenError("Only the author can delete this document.");
+      throw new ForbiddenError("Solo el autor puede eliminar este documento.");
     }
 
     await this.storage.remove(doc.storagePath);

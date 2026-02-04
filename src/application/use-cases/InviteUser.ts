@@ -19,13 +19,13 @@ export class InviteUser {
 
   async execute(input: InviteUserInput): Promise<{ userId: string }> {
     if (input.actor.role !== "ADMIN") {
-      throw new ForbiddenError("Only admins can invite users.");
+      throw new ForbiddenError("Solo administradores pueden invitar usuarios.");
     }
     if (!input.email.trim()) {
-      throw new ValidationError("Email is required.");
+      throw new ValidationError("El email es obligatorio.");
     }
     if (!input.redirectTo.trim()) {
-      throw new ValidationError("Redirect URL is required.");
+      throw new ValidationError("La URL de redireccion es obligatoria.");
     }
 
     const { userId } = await this.authAdmin.inviteUserByEmail({

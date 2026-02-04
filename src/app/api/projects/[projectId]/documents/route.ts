@@ -22,15 +22,21 @@ export async function GET(
         actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
 
     const docs = await repos.documents.listByProject(projectId);
+    const authorIds = Array.from(new Set(docs.map((doc) => doc.authorId)));
+    const users = await repos.users.findByIds(authorIds);
+    const nameMap = new Map(
+      users.map((user) => [user.id, user.fullName ?? user.email])
+    );
     const ttl = Number(process.env.SIGNED_URL_TTL_SECONDS ?? "900");
     const data = await Promise.all(
       docs.map(async (doc) => ({
         ...doc,
+        authorName: nameMap.get(doc.authorId) ?? doc.authorId,
         signedUrl: await services.storage.createSignedUrl(
           doc.storagePath,
           ttl
@@ -55,7 +61,7 @@ export async function POST(
     const form = await request.formData();
     const file = form.get("file");
     if (!(file instanceof File)) {
-      throw new ValidationError("File is required.");
+      throw new ValidationError("El archivo es obligatorio.");
     }
 
     const buffer = await file.arrayBuffer();

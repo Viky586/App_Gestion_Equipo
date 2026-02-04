@@ -15,8 +15,8 @@ export function jsonError(error: unknown) {
       ? firstIssue.path.join(".")
       : null;
     const message = issuePath
-      ? `${issuePath}: ${firstIssue?.message ?? "Invalid request data."}`
-      : firstIssue?.message ?? "Invalid request data.";
+      ? `${issuePath}: ${firstIssue?.message ?? "Datos invalidos."}`
+      : firstIssue?.message ?? "Datos invalidos.";
     return NextResponse.json(
       {
         error: {
@@ -40,7 +40,7 @@ export function jsonError(error: unknown) {
     );
   }
   return NextResponse.json(
-    { error: { code: "INTERNAL_ERROR", message: "Unexpected error." } },
+    { error: { code: "INTERNAL_ERROR", message: "Error inesperado." } },
     { status: 500 }
   );
 }

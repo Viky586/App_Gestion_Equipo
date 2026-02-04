@@ -46,7 +46,7 @@ export async function GET(
         actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
     const members = await repos.members.listMembers(projectId);
@@ -66,7 +66,7 @@ export async function DELETE(
     const projectId = await getUuidParam(params, "projectId");
     const payload = assignUserSchema.parse(await request.json());
     if (actor.role !== "ADMIN") {
-      throw new ForbiddenError("Admins only.");
+      throw new ForbiddenError("Solo administradores.");
     }
     await repos.members.removeMember(projectId, payload.userId);
     return NextResponse.json({ success: true });

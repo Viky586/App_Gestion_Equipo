@@ -19,16 +19,16 @@ export class UpdateProject {
 
   async execute(input: UpdateProjectInput): Promise<Project> {
     if (input.actor.role !== "ADMIN") {
-      throw new ForbiddenError("Only admins can update projects.");
+      throw new ForbiddenError("Solo administradores pueden actualizar proyectos.");
     }
 
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
-      throw new NotFoundError("Project not found.");
+      throw new NotFoundError("Proyecto no encontrado.");
     }
 
     if (input.name !== undefined && !input.name.trim()) {
-      throw new ValidationError("Project name cannot be empty.");
+      throw new ValidationError("El nombre del proyecto no puede estar vacio.");
     }
 
     return this.projectRepo.update(input.projectId, {

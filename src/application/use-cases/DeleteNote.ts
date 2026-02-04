@@ -13,10 +13,10 @@ export class DeleteNote {
   async execute(input: DeleteNoteInput): Promise<void> {
     const note = await this.noteRepo.findById(input.noteId);
     if (!note) {
-      throw new NotFoundError("Note not found.");
+      throw new NotFoundError("Nota no encontrada.");
     }
     if (input.actor.role !== "ADMIN" && note.authorId !== input.actor.userId) {
-      throw new ForbiddenError("Only the author can delete this note.");
+      throw new ForbiddenError("Solo el autor puede eliminar esta nota.");
     }
     await this.noteRepo.delete(input.noteId);
   }

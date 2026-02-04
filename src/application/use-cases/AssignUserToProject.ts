@@ -23,17 +23,19 @@ export class AssignUserToProject {
 
   async execute(input: AssignUserToProjectInput): Promise<void> {
     if (input.actor.role !== "ADMIN") {
-      throw new ForbiddenError("Only admins can assign users to projects.");
+      throw new ForbiddenError(
+        "Solo administradores pueden asignar usuarios a proyectos."
+      );
     }
 
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
-      throw new NotFoundError("Project not found.");
+      throw new NotFoundError("Proyecto no encontrado.");
     }
 
     const user = await this.userRepo.findById(input.userId);
     if (!user) {
-      throw new NotFoundError("User not found.");
+      throw new NotFoundError("Usuario no encontrado.");
     }
 
     const isMember = await this.memberRepo.isMember(
@@ -41,7 +43,7 @@ export class AssignUserToProject {
       input.userId
     );
     if (isMember) {
-      throw new ConflictError("User already assigned to project.");
+      throw new ConflictError("El usuario ya esta asignado al proyecto.");
     }
 
     await this.memberRepo.addMember({

@@ -18,13 +18,13 @@ export class CreateCollaborator {
 
   async execute(input: CreateCollaboratorInput): Promise<{ userId: string }> {
     if (input.actor.role !== "ADMIN") {
-      throw new ForbiddenError("Only admins can create collaborators.");
+      throw new ForbiddenError("Solo administradores pueden crear colaboradores.");
     }
     if (!input.email.trim()) {
-      throw new ValidationError("Email is required.");
+      throw new ValidationError("El email es obligatorio.");
     }
     if (!input.password.trim()) {
-      throw new ValidationError("Password is required.");
+      throw new ValidationError("La contrasena es obligatoria.");
     }
 
     const { userId } = await this.authAdmin.createUser({

@@ -21,7 +21,7 @@ export async function GET(
         actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
     const messages = await repos.messages.listByProject(projectId);

@@ -26,6 +26,7 @@ type Note = {
   title: string;
   content: string;
   authorId: string;
+  authorName?: string;
   updatedAt: string;
 };
 
@@ -34,6 +35,7 @@ type DocumentItem = {
   originalName: string;
   signedUrl: string;
   authorId: string;
+  authorName?: string;
   createdAt: string;
 };
 
@@ -223,13 +225,27 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               />
               <ul className="space-y-2">
                 {documents.map((doc) => (
-                  <li key={doc.id} className="flex items-center justify-between text-sm">
-                    <a className="text-primary underline" href={doc.signedUrl} target="_blank" rel="noreferrer">
-                      {doc.originalName}
-                    </a>
-                    <Button variant="ghost" size="sm" onClick={() => handleDeleteDocument(doc.id)}>
-                      Eliminar
-                    </Button>
+                  <li key={doc.id} className="space-y-1 text-sm">
+                    <div className="flex items-center justify-between">
+                      <a
+                        className="text-primary underline"
+                        href={doc.signedUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {doc.originalName}
+                      </a>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteDocument(doc.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Subido por {doc.authorName ?? doc.authorId}
+                    </p>
                   </li>
                 ))}
                 {documents.length === 0 ? (
@@ -264,6 +280,9 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="text-sm text-muted-foreground">{note.content}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Autor: {note.authorName ?? note.authorId}
+                  </p>
                   <div className="flex gap-2">
                     <Button variant="secondary" size="sm" onClick={() => handleEditNote(note)}>
                       Editar

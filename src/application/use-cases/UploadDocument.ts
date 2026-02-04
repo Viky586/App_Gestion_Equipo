@@ -29,11 +29,11 @@ export class UploadDocument {
 
   async execute(input: UploadDocumentInput): Promise<ProjectDocument> {
     if (!input.originalName.trim()) {
-      throw new ValidationError("File name is required.");
+      throw new ValidationError("El nombre del archivo es obligatorio.");
     }
     const project = await this.projectRepo.findById(input.projectId);
     if (!project) {
-      throw new NotFoundError("Project not found.");
+      throw new NotFoundError("Proyecto no encontrado.");
     }
     if (input.actor.role !== "ADMIN") {
       const isMember = await this.memberRepo.isMember(
@@ -41,7 +41,7 @@ export class UploadDocument {
         input.actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
 

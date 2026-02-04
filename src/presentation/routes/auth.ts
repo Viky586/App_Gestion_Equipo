@@ -9,11 +9,11 @@ export async function requireActor(
 ): Promise<Actor> {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    throw new UnauthorizedError("Session required.");
+    throw new UnauthorizedError("Se requiere sesion.");
   }
   const profile = await userRepo.findById(data.user.id);
   if (!profile) {
-    throw new UnauthorizedError("User profile not found.");
+    throw new UnauthorizedError("Perfil de usuario no encontrado.");
   }
   return {
     userId: profile.id,

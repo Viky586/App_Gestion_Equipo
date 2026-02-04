@@ -22,13 +22,13 @@ export async function GET(
         actor.userId
       );
       if (!isMember) {
-        throw new ForbiddenError("Not a member of this project.");
+        throw new ForbiddenError("No perteneces a este proyecto.");
       }
     }
     const project = await repos.projects.findById(projectId);
     if (!project) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Project not found." } },
+        { error: { code: "NOT_FOUND", message: "Proyecto no encontrado." } },
         { status: 404 }
       );
     }
