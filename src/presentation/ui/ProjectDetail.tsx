@@ -359,178 +359,11 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
 
       <Tabs defaultValue="tasks" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="tasks">Tareas</TabsTrigger>
           <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="documents">Documentos</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
-          <TabsTrigger value="tasks">Tareas</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="chat" className="space-y-4">
-          <Card>
-            <CardContent className="space-y-3 pt-6">
-              {currentUserIsPrimaryAdmin ? (
-                <div className="flex justify-end">
-                  <Button variant="destructive" onClick={handleClearChat}>
-                    Vaciar chat
-                  </Button>
-                </div>
-              ) : null}
-              <div className="max-h-80 space-y-2 overflow-y-auto rounded-md border p-3">
-                {messages.map((msg) => (
-                  <div key={msg.id} className="text-sm">
-                    <span className="font-medium">
-                      {msg.authorName ?? msg.authorId}
-                    </span>
-                    <span className="whitespace-pre-wrap wrap-break-word">
-                      : {msg.content}
-                    </span>
-                  </div>
-                ))}
-                {messages.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No hay mensajes todavia.
-                  </p>
-                ) : null}
-              </div>
-              <div className="flex gap-2">
-                <Textarea
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  placeholder="Escribe un mensaje..."
-                />
-                <Button onClick={handleSendMessage}>Enviar</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="documents" className="space-y-4">
-          <Card>
-            <CardContent className="space-y-3 pt-6">
-              <div className="space-y-2">
-                <Input
-                  placeholder="Descripcion del documento"
-                  value={documentDescription}
-                  onChange={(e) => {
-                    setDocumentDescription(e.target.value);
-                    if (documentError) {
-                      setDocumentError(null);
-                    }
-                  }}
-                />
-                {documentError ? (
-                  <p className="text-sm text-destructive">{documentError}</p>
-                ) : null}
-              </div>
-              <Input
-                type="file"
-                key={fileInputKey}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  setSelectedFile(file ?? null);
-                  if (documentError) {
-                    setDocumentError(null);
-                  }
-                }}
-                disabled={uploading}
-              />
-              {selectedFile ? (
-                <p className="text-xs text-muted-foreground">
-                  Archivo seleccionado: {selectedFile.name}
-                </p>
-              ) : null}
-              <Button
-                onClick={handleUpload}
-                disabled={uploading || !selectedFile || !documentDescription.trim()}
-              >
-                {uploading ? "Subiendo..." : "Subir documento"}
-              </Button>
-              <ul className="space-y-2">
-                {documents.map((doc) => (
-                  <li key={doc.id} className="space-y-1 text-sm">
-                    <div className="flex items-center justify-between">
-                      <a
-                        className="text-primary underline"
-                        href={doc.signedUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {doc.originalName}
-                      </a>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteDocument(doc.id)}
-                      >
-                        Eliminar
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {doc.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Subido por {doc.authorName ?? doc.authorId}
-                    </p>
-                  </li>
-                ))}
-                {documents.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No hay documentos.
-                  </p>
-                ) : null}
-              </ul>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notes" className="space-y-4">
-          <Card>
-            <CardContent className="space-y-3 pt-6">
-              <Textarea
-                placeholder="Escribe una nota..."
-                value={noteContent}
-                onChange={(e) => setNoteContent(e.target.value)}
-              />
-              <Button onClick={handleCreateNote}>Guardar nota</Button>
-            </CardContent>
-          </Card>
-          <div className="grid gap-3 md:grid-cols-2">
-            {notes.map((note) => (
-              <Card key={note.id}>
-                <CardContent className="space-y-2 pt-6">
-                  <p className="text-sm text-muted-foreground">{note.content}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Autor: {note.authorName ?? note.authorId}
-                  </p>
-                  <div className="flex gap-2">
-                    {currentUserId === note.authorId ? (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleEditNote(note)}
-                      >
-                        Editar
-                      </Button>
-                    ) : null}
-                    {currentUserId === note.authorId ||
-                    currentUserIsPrimaryAdmin ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteNote(note.id)}
-                      >
-                        Eliminar
-                      </Button>
-                    ) : null}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            {notes.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No hay notas.</p>
-            ) : null}
-          </div>
-        </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
           {currentUserRole === "ADMIN" ? (
@@ -737,6 +570,174 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="chat" className="space-y-4">
+          <Card>
+            <CardContent className="space-y-3 pt-6">
+              {currentUserIsPrimaryAdmin ? (
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={handleClearChat}>
+                    Vaciar chat
+                  </Button>
+                </div>
+              ) : null}
+              <div className="max-h-80 space-y-2 overflow-y-auto rounded-md border p-3">
+                {messages.map((msg) => (
+                  <div key={msg.id} className="text-sm">
+                    <span className="font-medium">
+                      {msg.authorName ?? msg.authorId}
+                    </span>
+                    <span className="whitespace-pre-wrap wrap-break-word">
+                      : {msg.content}
+                    </span>
+                  </div>
+                ))}
+                {messages.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No hay mensajes todavia.
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex gap-2">
+                <Textarea
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder="Escribe un mensaje..."
+                />
+                <Button onClick={handleSendMessage}>Enviar</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-4">
+          <Card>
+            <CardContent className="space-y-3 pt-6">
+              <div className="space-y-2">
+                <Input
+                  placeholder="Descripcion del documento"
+                  value={documentDescription}
+                  onChange={(e) => {
+                    setDocumentDescription(e.target.value);
+                    if (documentError) {
+                      setDocumentError(null);
+                    }
+                  }}
+                />
+                {documentError ? (
+                  <p className="text-sm text-destructive">{documentError}</p>
+                ) : null}
+              </div>
+              <Input
+                type="file"
+                key={fileInputKey}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  setSelectedFile(file ?? null);
+                  if (documentError) {
+                    setDocumentError(null);
+                  }
+                }}
+                disabled={uploading}
+              />
+              {selectedFile ? (
+                <p className="text-xs text-muted-foreground">
+                  Archivo seleccionado: {selectedFile.name}
+                </p>
+              ) : null}
+              <Button
+                onClick={handleUpload}
+                disabled={uploading || !selectedFile || !documentDescription.trim()}
+              >
+                {uploading ? "Subiendo..." : "Subir documento"}
+              </Button>
+              <ul className="space-y-2">
+                {documents.map((doc) => (
+                  <li key={doc.id} className="space-y-1 text-sm">
+                    <div className="flex items-center justify-between">
+                      <a
+                        className="text-primary underline"
+                        href={doc.signedUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {doc.originalName}
+                      </a>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteDocument(doc.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {doc.description}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Subido por {doc.authorName ?? doc.authorId}
+                    </p>
+                  </li>
+                ))}
+                {documents.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No hay documentos.
+                  </p>
+                ) : null}
+              </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notes" className="space-y-4">
+          <Card>
+            <CardContent className="space-y-3 pt-6">
+              <Textarea
+                placeholder="Escribe una nota..."
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+              />
+              <Button onClick={handleCreateNote}>Guardar nota</Button>
+            </CardContent>
+          </Card>
+          <div className="grid gap-3 md:grid-cols-2">
+            {notes.map((note) => (
+              <Card key={note.id}>
+                <CardContent className="space-y-2 pt-6">
+                  <p className="text-sm text-muted-foreground">{note.content}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Autor: {note.authorName ?? note.authorId}
+                  </p>
+                  <div className="flex gap-2">
+                    {currentUserId === note.authorId ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleEditNote(note)}
+                      >
+                        Editar
+                      </Button>
+                    ) : null}
+                    {currentUserId === note.authorId ||
+                    currentUserIsPrimaryAdmin ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteNote(note.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    ) : null}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {notes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No hay notas.</p>
+            ) : null}
+          </div>
+        </TabsContent>
+
       </Tabs>
     </div>
   );
