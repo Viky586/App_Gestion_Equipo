@@ -6,6 +6,8 @@ export interface ProjectTask {
   title: string;
   description: string | null;
   status: TaskStatus;
+  isArchived: boolean;
+  archivedAt: string | null;
   assignedTo: string;
   createdBy: string;
   createdAt: string;

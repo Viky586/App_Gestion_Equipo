@@ -13,5 +13,6 @@ export interface TaskRepository {
   listByProject(projectId: string): Promise<ProjectTask[]>;
   updateStatus(id: string, status: TaskStatus): Promise<ProjectTask>;
   updateAssignee(id: string, assignedTo: string): Promise<ProjectTask>;
+  updateArchive(id: string, isArchived: boolean): Promise<ProjectTask>;
   delete(id: string): Promise<void>;
 }

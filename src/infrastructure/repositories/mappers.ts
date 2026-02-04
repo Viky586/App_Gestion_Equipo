@@ -68,6 +68,8 @@ type TaskRow = {
   title: string;
   description: string | null;
   status: TaskStatus;
+  is_archived: boolean;
+  archived_at: string | null;
   assigned_to: string;
   created_by: string;
   created_at: string;
@@ -126,6 +128,8 @@ export const mapTask = (row: TaskRow): ProjectTask => ({
   title: row.title,
   description: row.description,
   status: row.status,
+  isArchived: row.is_archived,
+  archivedAt: row.archived_at,
   assignedTo: row.assigned_to,
   createdBy: row.created_by,
   createdAt: row.created_at,

@@ -73,6 +73,20 @@ export class SupabaseTaskRepository implements TaskRepository {
     return mapTask(row);
   }
 
+  async updateArchive(id: string, isArchived: boolean) {
+    const { data: row, error } = await this.client
+      .from("project_tasks")
+      .update({
+        is_archived: isArchived,
+        archived_at: isArchived ? new Date().toISOString() : null,
+      })
+      .eq("id", id)
+      .select("*")
+      .single();
+    assertSupabase(error, "Failed to update task archive");
+    return mapTask(row);
+  }
+
   async delete(id: string) {
     const { error } = await this.client
       .from("project_tasks")

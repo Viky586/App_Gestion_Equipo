@@ -13,6 +13,7 @@ export interface UpdateTaskInput {
   taskId: string;
   status?: TaskStatus;
   assignedTo?: string;
+  archived?: boolean;
 }
 
 export class UpdateTask {
@@ -22,7 +23,7 @@ export class UpdateTask {
   ) {}
 
   async execute(input: UpdateTaskInput): Promise<ProjectTask> {
-    if (!input.status && !input.assignedTo) {
+    if (!input.status && !input.assignedTo && input.archived === undefined) {
       throw new ValidationError("No hay cambios para actualizar.");
     }
     const task = await this.taskRepo.findById(input.taskId);
@@ -35,6 +36,12 @@ export class UpdateTask {
     if (!isAdmin && !isAssignee) {
       throw new ForbiddenError(
         "Solo el responsable o un administrador puede actualizar la tarea."
+      );
+    }
+
+    if (task.isArchived && !input.actor.isPrimaryAdmin) {
+      throw new ForbiddenError(
+        "Solo el admin principal puede modificar tareas archivadas."
       );
     }
 
@@ -53,7 +60,30 @@ export class UpdateTask {
       }
     }
 
-    if (input.status) {
+    if (input.archived === true) {
+      if (!input.actor.isPrimaryAdmin && !isAdmin && !isAssignee) {
+        throw new ForbiddenError(
+          "Solo el responsable o un administrador puede archivar la tarea."
+        );
+      }
+      const nextStatus = input.status ?? "DONE";
+      if (nextStatus !== "DONE") {
+        throw new ValidationError("Solo se pueden archivar tareas terminadas.");
+      }
+      await this.taskRepo.updateStatus(input.taskId, "DONE");
+      await this.taskRepo.updateArchive(input.taskId, true);
+    }
+
+    if (input.archived === false) {
+      if (!input.actor.isPrimaryAdmin) {
+        throw new ForbiddenError(
+          "Solo el admin principal puede reactivar tareas."
+        );
+      }
+      await this.taskRepo.updateArchive(input.taskId, false);
+    }
+
+    if (input.status && input.archived !== true) {
       if (!isAdmin && !isAssignee) {
         throw new ForbiddenError(
           "Solo el responsable puede cambiar el estado."

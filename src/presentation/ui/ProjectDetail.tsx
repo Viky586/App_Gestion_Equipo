@@ -44,6 +44,8 @@ type Task = {
   title: string;
   description: string | null;
   status: "PENDING" | "REVIEWED" | "DONE";
+  isArchived: boolean;
+  archivedAt: string | null;
   assignedTo: string;
   assignedToName?: string;
   createdBy: string;
@@ -273,7 +275,11 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
 
   const updateTask = async (
     taskId: string,
-    payload: { status?: "PENDING" | "REVIEWED" | "DONE"; assignedTo?: string }
+    payload: {
+      status?: "PENDING" | "REVIEWED" | "DONE";
+      assignedTo?: string;
+      archived?: boolean;
+    }
   ) => {
     const response = await fetch(
       `/api/projects/${projectId}/tasks/${taskId}`,
@@ -311,6 +317,12 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     if (status === "REVIEWED") return "Revisado";
     if (status === "DONE") return "Terminado";
     return "Pendiente";
+  };
+
+  const getStatusIcon = (status: Task["status"]) => {
+    if (status === "REVIEWED") return "👀";
+    if (status === "DONE") return "✅";
+    return "⏳";
   };
 
   return (
@@ -555,13 +567,18 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                 {taskError ? (
                   <p className="text-sm text-destructive">{taskError}</p>
                 ) : null}
-                {tasks.map((task) => (
-                <Card key={task.id}>
+              {[...tasks]
+                .sort((a, b) => Number(a.isArchived) - Number(b.isArchived))
+                .map((task) => (
+                <Card
+                  key={task.id}
+                  className={task.isArchived ? "opacity-60" : undefined}
+                >
                   <CardContent className="space-y-2 pt-6">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">{task.title}</p>
                       <span className="text-xs text-muted-foreground">
-                        {getStatusLabel(task.status)}
+                        {getStatusIcon(task.status)} {getStatusLabel(task.status)}
                       </span>
                     </div>
                     {task.description ? (
@@ -575,17 +592,43 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                     <p className="text-xs text-muted-foreground">
                       Creado por: {task.createdByName ?? task.createdBy}
                     </p>
-                    {currentUserId === task.assignedTo ||
-                    currentUserRole === "ADMIN" ? (
+                    {task.isArchived ? (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          📦 Archivada
+                        </span>
+                        {currentUserIsPrimaryAdmin ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() =>
+                              updateTask(task.id, { archived: false })
+                            }
+                          >
+                            Reactivar
+                          </Button>
+                        ) : null}
+                      </div>
+                    ) : currentUserId === task.assignedTo ||
+                      currentUserRole === "ADMIN" ? (
                       <div className="flex flex-wrap items-center gap-2">
                         <select
                           className="rounded-md border border-input bg-background px-3 py-2 text-sm"
                           value={task.status}
-                          onChange={(e) =>
-                            updateTask(task.id, {
-                              status: e.target.value as Task["status"],
-                            })
-                          }
+                          onChange={(e) => {
+                            const nextStatus = e.target.value as Task["status"];
+                            if (nextStatus === "DONE") {
+                              const shouldArchive = window.confirm(
+                                "¿Archivar tarea?"
+                              );
+                              updateTask(task.id, {
+                                status: nextStatus,
+                                archived: shouldArchive,
+                              });
+                              return;
+                            }
+                            updateTask(task.id, { status: nextStatus });
+                          }}
                         >
                           <option value="PENDING">Pendiente</option>
                           <option value="REVIEWED">Revisado</option>

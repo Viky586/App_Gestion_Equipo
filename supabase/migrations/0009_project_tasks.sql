@@ -12,6 +12,8 @@ create table if not exists public.project_tasks (
   title text not null,
   description text,
   status public.task_status not null default 'PENDING',
+  is_archived boolean not null default false,
+  archived_at timestamptz,
   assigned_to uuid not null references public.profiles(id) on delete restrict,
   created_by uuid not null references public.profiles(id) on delete restrict,
   created_at timestamptz not null default now(),
@@ -37,8 +39,17 @@ for insert with check (public.is_admin());
 
 drop policy if exists tasks_update on public.project_tasks;
 create policy tasks_update on public.project_tasks
-for update using (assigned_to = auth.uid() or public.is_admin())
-with check (assigned_to = auth.uid() or public.is_admin());
+for update using (
+  (assigned_to = auth.uid() or public.is_admin()) and is_archived = false
+)
+with check (
+  (assigned_to = auth.uid() or public.is_admin())
+);
+
+drop policy if exists tasks_update_primary on public.project_tasks;
+create policy tasks_update_primary on public.project_tasks
+for update using (public.is_primary_admin())
+with check (public.is_primary_admin());
 
 drop policy if exists tasks_delete on public.project_tasks;
 create policy tasks_delete on public.project_tasks
