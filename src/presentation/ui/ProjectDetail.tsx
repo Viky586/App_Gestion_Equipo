@@ -50,6 +50,8 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [uploading, setUploading] = useState(false);
   const [documentDescription, setDocumentDescription] = useState("");
   const [documentError, setDocumentError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserIsPrimaryAdmin, setCurrentUserIsPrimaryAdmin] =
     useState(false);
@@ -157,7 +159,11 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     await loadNotes();
   };
 
-  const handleUpload = async (file: File) => {
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setDocumentError("Selecciona un archivo.");
+      return;
+    }
     if (!documentDescription.trim()) {
       setDocumentError("La descripcion es obligatoria.");
       return;
@@ -165,7 +171,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     setDocumentError(null);
     setUploading(true);
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", selectedFile);
     form.append("description", documentDescription.trim());
     await fetch(`/api/projects/${projectId}/documents`, {
       method: "POST",
@@ -173,6 +179,8 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     });
     setUploading(false);
     setDocumentDescription("");
+    setSelectedFile(null);
+    setFileInputKey((value) => value + 1);
     await loadDocuments();
   };
 
@@ -274,12 +282,27 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               </div>
               <Input
                 type="file"
+                key={fileInputKey}
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) handleUpload(file);
+                  setSelectedFile(file ?? null);
+                  if (documentError) {
+                    setDocumentError(null);
+                  }
                 }}
                 disabled={uploading}
               />
+              {selectedFile ? (
+                <p className="text-xs text-muted-foreground">
+                  Archivo seleccionado: {selectedFile.name}
+                </p>
+              ) : null}
+              <Button
+                onClick={handleUpload}
+                disabled={uploading || !selectedFile || !documentDescription.trim()}
+              >
+                {uploading ? "Subiendo..." : "Subir documento"}
+              </Button>
               <ul className="space-y-2">
                 {documents.map((doc) => (
                   <li key={doc.id} className="space-y-1 text-sm">
