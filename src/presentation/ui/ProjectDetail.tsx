@@ -53,6 +53,8 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [documentDescription, setDocumentDescription] = useState("");
   const [documentError, setDocumentError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserIsPrimaryAdmin, setCurrentUserIsPrimaryAdmin] =
+    useState(false);
 
   const loadProject = async () => {
     if (!projectId) {
@@ -97,7 +99,12 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   useEffect(() => {
     fetch("/api/me")
       .then((res) => (res.ok ? res.json() : null))
-      .then((payload) => setCurrentUserId(payload?.data?.id ?? null))
+      .then((payload) => {
+        setCurrentUserId(payload?.data?.id ?? null);
+        setCurrentUserIsPrimaryAdmin(
+          Boolean(payload?.data?.isPrimaryAdmin)
+        );
+      })
       .catch(() => null);
     loadProject();
     loadMessages();
@@ -206,7 +213,9 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                     <span className="font-medium">
                       {msg.authorName ?? msg.authorId}
                     </span>
-                    : {msg.content}
+                    <span className="whitespace-pre-wrap break-words">
+                      : {msg.content}
+                    </span>
                   </div>
                 ))}
                 {messages.length === 0 ? (
@@ -326,14 +335,17 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                         >
                           Editar
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteNote(note.id)}
-                        >
-                          Eliminar
-                        </Button>
                       </>
+                    ) : null}
+                    {currentUserId === note.authorId ||
+                    currentUserIsPrimaryAdmin ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteNote(note.id)}
+                      >
+                        Eliminar
+                      </Button>
                     ) : null}
                   </div>
                 </CardContent>

@@ -18,5 +18,6 @@ export async function requireActor(
   return {
     userId: profile.id,
     role: profile.role,
+    isPrimaryAdmin: profile.isPrimaryAdmin ?? false,
   };
 }

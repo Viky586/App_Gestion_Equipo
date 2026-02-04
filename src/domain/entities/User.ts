@@ -5,6 +5,7 @@ export interface User {
   email: string;
   fullName: string | null;
   role: Role;
+  isPrimaryAdmin?: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -15,7 +15,7 @@ export class DeleteNote {
     if (!note) {
       throw new NotFoundError("Nota no encontrada.");
     }
-    if (note.authorId !== input.actor.userId) {
+    if (note.authorId !== input.actor.userId && !input.actor.isPrimaryAdmin) {
       throw new ForbiddenError("Solo el autor puede eliminar esta nota.");
     }
     await this.noteRepo.delete(input.noteId);

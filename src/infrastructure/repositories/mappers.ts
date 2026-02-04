@@ -48,6 +48,7 @@ type UserRow = {
   email: string;
   full_name: string | null;
   role: "ADMIN" | "COLLAB";
+  is_primary_admin?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -96,6 +97,7 @@ export const mapUser = (row: UserRow): User => ({
   email: row.email,
   fullName: row.full_name?.trim() ? row.full_name : null,
   role: row.role,
+  isPrimaryAdmin: row.is_primary_admin ?? false,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });

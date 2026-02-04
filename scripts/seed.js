@@ -45,7 +45,10 @@ const collabName = process.env.SEED_COLLAB_NAME || "Collab Seed";
 
 const projectName = process.env.SEED_PROJECT_NAME || "Proyecto Seed";
 
-async function ensureUser(client, { email, password, fullName, role }) {
+async function ensureUser(
+  client,
+  { email, password, fullName, role, isPrimaryAdmin = false }
+) {
   const { data: existingProfile, error: profileError } = await client
     .from("profiles")
     .select("id, role, full_name")
@@ -61,6 +64,9 @@ async function ensureUser(client, { email, password, fullName, role }) {
     }
     if (fullName && existingProfile.full_name !== fullName) {
       updates.full_name = fullName;
+    }
+    if (typeof isPrimaryAdmin === "boolean") {
+      updates.is_primary_admin = isPrimaryAdmin;
     }
     if (Object.keys(updates).length > 0) {
       const { error: roleError } = await client
@@ -94,7 +100,7 @@ async function ensureUser(client, { email, password, fullName, role }) {
 
   const { error: roleError } = await client
     .from("profiles")
-    .update({ role })
+    .update({ role, is_primary_admin: isPrimaryAdmin })
     .eq("id", data.user.id);
   if (roleError) {
     throw new Error(roleError.message);
@@ -113,6 +119,7 @@ async function main() {
     password: adminPassword,
     fullName: adminName,
     role: "ADMIN",
+    isPrimaryAdmin: true,
   });
 
   const collabId = await ensureUser(client, {
