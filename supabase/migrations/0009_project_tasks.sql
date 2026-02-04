@@ -37,5 +37,9 @@ for insert with check (public.is_admin());
 
 drop policy if exists tasks_update on public.project_tasks;
 create policy tasks_update on public.project_tasks
-for update using (assigned_to = auth.uid())
-with check (assigned_to = auth.uid());
+for update using (assigned_to = auth.uid() or public.is_admin())
+with check (assigned_to = auth.uid() or public.is_admin());
+
+drop policy if exists tasks_delete on public.project_tasks;
+create policy tasks_delete on public.project_tasks
+for delete using (public.is_admin());

@@ -271,18 +271,37 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     await loadTasks();
   };
 
-  const updateTaskStatus = async (taskId: string, status: "REVIEWED" | "DONE") => {
+  const updateTask = async (
+    taskId: string,
+    payload: { status?: "PENDING" | "REVIEWED" | "DONE"; assignedTo?: string }
+  ) => {
     const response = await fetch(
       `/api/projects/${projectId}/tasks/${taskId}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(payload),
       }
     );
     if (!response.ok) {
-      const payload = await response.json();
-      setTaskError(payload.error?.message ?? "No se pudo actualizar la tarea.");
+      const result = await response.json();
+      setTaskError(result.error?.message ?? "No se pudo actualizar la tarea.");
+      return;
+    }
+    await loadTasks();
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!confirmDeletion("la tarea")) return;
+    const response = await fetch(
+      `/api/projects/${projectId}/tasks/${taskId}`,
+      {
+        method: "DELETE",
+      }
+    );
+    if (!response.ok) {
+      const result = await response.json();
+      setTaskError(result.error?.message ?? "No se pudo eliminar la tarea.");
       return;
     }
     await loadTasks();
@@ -528,12 +547,15 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </Card>
           ) : null}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Tareas del proyecto</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {tasks.map((task) => (
+            <Card>
+              <CardHeader>
+                <CardTitle>Tareas del proyecto</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {taskError ? (
+                  <p className="text-sm text-destructive">{taskError}</p>
+                ) : null}
+                {tasks.map((task) => (
                 <Card key={task.id}>
                   <CardContent className="space-y-2 pt-6">
                     <div className="flex items-center justify-between">
@@ -553,24 +575,51 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                     <p className="text-xs text-muted-foreground">
                       Creado por: {task.createdByName ?? task.createdBy}
                     </p>
-                    {currentUserId === task.assignedTo ? (
-                      <div className="flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => updateTaskStatus(task.id, "REVIEWED")}
-                          disabled={task.status === "REVIEWED"}
+                    {currentUserId === task.assignedTo ||
+                    currentUserRole === "ADMIN" ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <select
+                          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          value={task.status}
+                          onChange={(e) =>
+                            updateTask(task.id, {
+                              status: e.target.value as Task["status"],
+                            })
+                          }
                         >
-                          Marcar revisado
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => updateTaskStatus(task.id, "DONE")}
-                          disabled={task.status === "DONE"}
-                        >
-                          Marcar terminado
-                        </Button>
+                          <option value="PENDING">Pendiente</option>
+                          <option value="REVIEWED">Revisado</option>
+                          <option value="DONE">Terminado</option>
+                        </select>
+                        {currentUserRole === "ADMIN" ? (
+                          <>
+                            <select
+                              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              value={task.assignedTo}
+                              onChange={(e) =>
+                                updateTask(task.id, {
+                                  assignedTo: e.target.value,
+                                })
+                              }
+                            >
+                              {taskMembers.map((member) => (
+                                <option
+                                  key={member.userId}
+                                  value={member.userId}
+                                >
+                                  {member.userName}
+                                </option>
+                              ))}
+                            </select>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteTask(task.id)}
+                            >
+                              Eliminar
+                            </Button>
+                          </>
+                        ) : null}
                       </div>
                     ) : null}
                   </CardContent>

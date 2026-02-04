@@ -61,4 +61,23 @@ export class SupabaseTaskRepository implements TaskRepository {
     assertSupabase(error, "Failed to update task");
     return mapTask(row);
   }
+
+  async updateAssignee(id: string, assignedTo: string) {
+    const { data: row, error } = await this.client
+      .from("project_tasks")
+      .update({ assigned_to: assignedTo })
+      .eq("id", id)
+      .select("*")
+      .single();
+    assertSupabase(error, "Failed to update task assignee");
+    return mapTask(row);
+  }
+
+  async delete(id: string) {
+    const { error } = await this.client
+      .from("project_tasks")
+      .delete()
+      .eq("id", id);
+    assertSupabase(error, "Failed to delete task");
+  }
 }

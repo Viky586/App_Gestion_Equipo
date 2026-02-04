@@ -46,7 +46,8 @@ export const createTaskSchema = z.object({
 });
 
 export const updateTaskStatusSchema = z.object({
-  status: z.enum(["REVIEWED", "DONE"]),
+  status: z.enum(["PENDING", "REVIEWED", "DONE"]).optional(),
+  assignedTo: z.string().uuid("Usuario invalido.").optional(),
 });
 
 export const acceptInviteSchema = z
