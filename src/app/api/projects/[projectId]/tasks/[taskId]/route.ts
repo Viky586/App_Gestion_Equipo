@@ -22,6 +22,7 @@ export async function PATCH(
       taskId,
       status: payload.status,
       assignedTo: payload.assignedTo,
+      archived: payload.archived,
     });
     return NextResponse.json({ data: task });
   } catch (error) {

@@ -39,10 +39,18 @@ export class UpdateTask {
       );
     }
 
-    if (task.isArchived && !input.actor.isPrimaryAdmin) {
-      throw new ForbiddenError(
-        "Solo el admin principal puede modificar tareas archivadas."
-      );
+    if (task.isArchived) {
+      if (input.archived !== false || !input.actor.isPrimaryAdmin) {
+        throw new ForbiddenError(
+          "Solo el admin principal puede reactivar tareas archivadas."
+        );
+      }
+      await this.taskRepo.updateArchive(input.taskId, false);
+      const updated = await this.taskRepo.findById(input.taskId);
+      if (!updated) {
+        throw new NotFoundError("Tarea no encontrada.");
+      }
+      return updated;
     }
 
     if (input.assignedTo) {
@@ -61,29 +69,20 @@ export class UpdateTask {
     }
 
     if (input.archived === true) {
-      if (!input.actor.isPrimaryAdmin && !isAdmin && !isAssignee) {
-        throw new ForbiddenError(
-          "Solo el responsable o un administrador puede archivar la tarea."
-        );
-      }
       const nextStatus = input.status ?? "DONE";
       if (nextStatus !== "DONE") {
         throw new ValidationError("Solo se pueden archivar tareas terminadas.");
       }
       await this.taskRepo.updateStatus(input.taskId, "DONE");
       await this.taskRepo.updateArchive(input.taskId, true);
-    }
-
-    if (input.archived === false) {
-      if (!input.actor.isPrimaryAdmin) {
-        throw new ForbiddenError(
-          "Solo el admin principal puede reactivar tareas."
-        );
+      const updated = await this.taskRepo.findById(input.taskId);
+      if (!updated) {
+        throw new NotFoundError("Tarea no encontrada.");
       }
-      await this.taskRepo.updateArchive(input.taskId, false);
+      return updated;
     }
 
-    if (input.status && input.archived !== true) {
+    if (input.status) {
       if (!isAdmin && !isAssignee) {
         throw new ForbiddenError(
           "Solo el responsable puede cambiar el estado."
