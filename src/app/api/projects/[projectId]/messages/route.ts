@@ -4,6 +4,7 @@ import { requireActor } from "@/presentation/routes/auth";
 import { jsonError } from "@/presentation/routes/http";
 import { createMessageSchema } from "@/presentation/validation/schemas";
 import { PostProjectMessage } from "@/application/use-cases/PostProjectMessage";
+import { ClearProjectMessages } from "@/application/use-cases/ClearProjectMessages";
 import { ForbiddenError } from "@/domain/errors/AppError";
 import { getUuidParam, RouteContext } from "@/presentation/routes/params";
 
@@ -60,6 +61,22 @@ export async function POST(
       content: payload.content,
     });
     return NextResponse.json({ data: message }, { status: 201 });
+  } catch (error) {
+    return jsonError(error);
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: RouteContext<{ projectId: string }>
+) {
+  try {
+    const { supabase, repos } = await createRequestDependencies();
+    const actor = await requireActor(supabase, repos.users);
+    const projectId = await getUuidParam(params, "projectId");
+    const useCase = new ClearProjectMessages(repos.projects, repos.messages);
+    await useCase.execute({ actor, projectId });
+    return NextResponse.json({ success: true });
   } catch (error) {
     return jsonError(error);
   }

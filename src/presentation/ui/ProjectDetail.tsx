@@ -56,6 +56,13 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [currentUserIsPrimaryAdmin, setCurrentUserIsPrimaryAdmin] =
     useState(false);
 
+  const confirmDeletion = (label: string) => {
+    const answer = window.prompt(
+      `Escribe BORRAR para eliminar ${label}.`
+    );
+    return answer === "BORRAR";
+  };
+
   const loadProject = async () => {
     if (!projectId) {
       setProjectError("ID de proyecto inválido.");
@@ -149,6 +156,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   };
 
   const handleDeleteNote = async (noteId: string) => {
+    if (!confirmDeletion("la nota")) return;
     await fetch(`/api/projects/${projectId}/notes/${noteId}`, {
       method: "DELETE",
     });
@@ -175,10 +183,19 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   };
 
   const handleDeleteDocument = async (documentId: string) => {
+    if (!confirmDeletion("el documento")) return;
     await fetch(`/api/projects/${projectId}/documents/${documentId}`, {
       method: "DELETE",
     });
     await loadDocuments();
+  };
+
+  const handleClearChat = async () => {
+    if (!confirmDeletion("todos los mensajes del chat")) return;
+    await fetch(`/api/projects/${projectId}/messages`, {
+      method: "DELETE",
+    });
+    await loadMessages();
   };
 
   return (
@@ -207,6 +224,13 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         <TabsContent value="chat" className="space-y-4">
           <Card>
             <CardContent className="space-y-3 pt-6">
+              {currentUserIsPrimaryAdmin ? (
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={handleClearChat}>
+                    Vaciar chat
+                  </Button>
+                </div>
+              ) : null}
               <div className="max-h-80 space-y-2 overflow-y-auto rounded-md border p-3">
                 {messages.map((msg) => (
                   <div key={msg.id} className="text-sm">

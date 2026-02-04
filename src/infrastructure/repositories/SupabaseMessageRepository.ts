@@ -33,4 +33,12 @@ export class SupabaseMessageRepository implements MessageRepository {
     assertSupabase(error, "Failed to list messages");
     return (data ?? []).map(mapMessage);
   }
+
+  async deleteByProject(projectId: string) {
+    const { error } = await this.client
+      .from("project_messages")
+      .delete()
+      .eq("project_id", projectId);
+    assertSupabase(error, "Failed to delete messages");
+  }
 }

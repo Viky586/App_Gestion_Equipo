@@ -7,4 +7,5 @@ export interface MessageRepository {
     content: string;
   }): Promise<ProjectMessage>;
   listByProject(projectId: string): Promise<ProjectMessage[]>;
+  deleteByProject(projectId: string): Promise<void>;
 }

@@ -141,7 +141,10 @@ export function AdminDashboard() {
       setError("Proyecto inválido.");
       return;
     }
-    if (!window.confirm("¿Eliminar el proyecto?")) return;
+    const confirmation = window.prompt(
+      "Escribe BORRAR para eliminar el proyecto."
+    );
+    if (confirmation !== "BORRAR") return;
     const response = await fetch(`/api/projects/${projectId}`, {
       method: "DELETE",
     });
