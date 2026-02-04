@@ -6,6 +6,7 @@ import { SupabaseMessageRepository } from "@/infrastructure/repositories/Supabas
 import { SupabaseNoteRepository } from "@/infrastructure/repositories/SupabaseNoteRepository";
 import { SupabaseDocumentRepository } from "@/infrastructure/repositories/SupabaseDocumentRepository";
 import { SupabasePersonalNoteRepository } from "@/infrastructure/repositories/SupabasePersonalNoteRepository";
+import { SupabaseTaskRepository } from "@/infrastructure/repositories/SupabaseTaskRepository";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { SupabaseAuthAdminService } from "@/infrastructure/supabase/SupabaseAuthAdminService";
 
@@ -25,6 +26,7 @@ export async function createRequestDependencies() {
       notes: new SupabaseNoteRepository(supabase),
       documents: new SupabaseDocumentRepository(supabase),
       personalNotes: new SupabasePersonalNoteRepository(supabase),
+      tasks: new SupabaseTaskRepository(supabase),
     },
     services: {
       storage: new SupabaseStorageService(supabase, bucket),

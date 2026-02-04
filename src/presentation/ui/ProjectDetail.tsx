@@ -39,12 +39,26 @@ type DocumentItem = {
   createdAt: string;
 };
 
+type Task = {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "PENDING" | "REVIEWED" | "DONE";
+  assignedTo: string;
+  assignedToName?: string;
+  createdBy: string;
+  createdByName?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export function ProjectDetail({ projectId }: { projectId: string }) {
   const [project, setProject] = useState<Project | null>(null);
   const [projectError, setProjectError] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [messageText, setMessageText] = useState("");
   const [noteContent, setNoteContent] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -55,6 +69,14 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserIsPrimaryAdmin, setCurrentUserIsPrimaryAdmin] =
     useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskAssignee, setTaskAssignee] = useState("");
+  const [taskMembers, setTaskMembers] = useState<
+    Array<{ userId: string; userName: string }>
+  >([]);
+  const [taskError, setTaskError] = useState<string | null>(null);
 
   const confirmDeletion = (label: string) => {
     const answer = window.prompt(
@@ -103,18 +125,37 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     }
   };
 
+  const loadTasks = async () => {
+    const res = await fetch(`/api/projects/${projectId}/tasks`);
+    if (res.ok) {
+      const { data } = await res.json();
+      setTasks(data ?? []);
+    }
+  };
+
+  const loadMembers = async () => {
+    const res = await fetch(`/api/projects/${projectId}/members`);
+    if (res.ok) {
+      const { data } = await res.json();
+      setTaskMembers(data ?? []);
+    }
+  };
+
   useEffect(() => {
     fetch("/api/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((payload) => {
         setCurrentUserId(payload?.data?.id ?? null);
         setCurrentUserIsPrimaryAdmin(Boolean(payload?.data?.isPrimaryAdmin));
+        setCurrentUserRole(payload?.data?.role ?? null);
       })
       .catch(() => null);
     loadProject();
     loadMessages();
     loadNotes();
     loadDocuments();
+    loadTasks();
+    loadMembers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
@@ -200,6 +241,59 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     await loadMessages();
   };
 
+  const handleCreateTask = async () => {
+    setTaskError(null);
+    if (!taskTitle.trim()) {
+      setTaskError("El titulo es obligatorio.");
+      return;
+    }
+    if (!taskAssignee) {
+      setTaskError("Selecciona un responsable.");
+      return;
+    }
+    const response = await fetch(`/api/projects/${projectId}/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: taskTitle,
+        description: taskDescription || null,
+        assignedTo: taskAssignee,
+      }),
+    });
+    if (!response.ok) {
+      const payload = await response.json();
+      setTaskError(payload.error?.message ?? "No se pudo crear la tarea.");
+      return;
+    }
+    setTaskTitle("");
+    setTaskDescription("");
+    setTaskAssignee("");
+    await loadTasks();
+  };
+
+  const updateTaskStatus = async (taskId: string, status: "REVIEWED" | "DONE") => {
+    const response = await fetch(
+      `/api/projects/${projectId}/tasks/${taskId}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      }
+    );
+    if (!response.ok) {
+      const payload = await response.json();
+      setTaskError(payload.error?.message ?? "No se pudo actualizar la tarea.");
+      return;
+    }
+    await loadTasks();
+  };
+
+  const getStatusLabel = (status: Task["status"]) => {
+    if (status === "REVIEWED") return "Revisado";
+    if (status === "DONE") return "Terminado";
+    return "Pendiente";
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -221,6 +315,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="documents">Documentos</TabsTrigger>
           <TabsTrigger value="notes">Notas</TabsTrigger>
+          <TabsTrigger value="tasks">Tareas</TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="space-y-4">
@@ -388,6 +483,106 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <p className="text-sm text-muted-foreground">No hay notas.</p>
             ) : null}
           </div>
+        </TabsContent>
+
+        <TabsContent value="tasks" className="space-y-4">
+          {currentUserRole === "ADMIN" ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Nueva tarea</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Titulo de la tarea"
+                    value={taskTitle}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Textarea
+                    placeholder="Descripcion (opcional)"
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <select
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    value={taskAssignee}
+                    onChange={(e) => setTaskAssignee(e.target.value)}
+                  >
+                    <option value="">Selecciona responsable</option>
+                    {taskMembers.map((member) => (
+                      <option key={member.userId} value={member.userId}>
+                        {member.userName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {taskError ? (
+                  <p className="text-sm text-destructive">{taskError}</p>
+                ) : null}
+                <Button onClick={handleCreateTask}>Crear tarea</Button>
+              </CardContent>
+            </Card>
+          ) : null}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tareas del proyecto</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {tasks.map((task) => (
+                <Card key={task.id}>
+                  <CardContent className="space-y-2 pt-6">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium">{task.title}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {getStatusLabel(task.status)}
+                      </span>
+                    </div>
+                    {task.description ? (
+                      <p className="text-sm text-muted-foreground">
+                        {task.description}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-muted-foreground">
+                      Responsable: {task.assignedToName ?? task.assignedTo}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Creado por: {task.createdByName ?? task.createdBy}
+                    </p>
+                    {currentUserId === task.assignedTo ? (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => updateTaskStatus(task.id, "REVIEWED")}
+                          disabled={task.status === "REVIEWED"}
+                        >
+                          Marcar revisado
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => updateTaskStatus(task.id, "DONE")}
+                          disabled={task.status === "DONE"}
+                        >
+                          Marcar terminado
+                        </Button>
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              ))}
+              {tasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No hay tareas todavia.
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

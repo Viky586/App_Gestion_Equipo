@@ -1,0 +1,15 @@
+import { ProjectTask, TaskStatus } from "@/domain/entities/ProjectTask";
+
+export interface TaskRepository {
+  create(data: {
+    projectId: string;
+    title: string;
+    description: string | null;
+    status: TaskStatus;
+    assignedTo: string;
+    createdBy: string;
+  }): Promise<ProjectTask>;
+  findById(id: string): Promise<ProjectTask | null>;
+  listByProject(projectId: string): Promise<ProjectTask[]>;
+  updateStatus(id: string, status: TaskStatus): Promise<ProjectTask>;
+}

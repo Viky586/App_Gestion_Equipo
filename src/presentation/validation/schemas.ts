@@ -39,6 +39,16 @@ export const inviteUserSchema = z.object({
   role: z.enum(["ADMIN", "COLLAB"]),
 });
 
+export const createTaskSchema = z.object({
+  title: z.string().min(1, "El titulo es obligatorio."),
+  description: z.string().optional().nullable(),
+  assignedTo: z.string().uuid("Usuario invalido."),
+});
+
+export const updateTaskStatusSchema = z.object({
+  status: z.enum(["REVIEWED", "DONE"]),
+});
+
 export const acceptInviteSchema = z
   .object({
     fullName: z.string().min(1, "El nombre es obligatorio."),

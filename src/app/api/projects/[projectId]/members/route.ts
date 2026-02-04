@@ -50,7 +50,16 @@ export async function GET(
       }
     }
     const members = await repos.members.listMembers(projectId);
-    return NextResponse.json({ data: members });
+    const userIds = Array.from(new Set(members.map((m) => m.userId)));
+    const users = await repos.users.findByIds(userIds);
+    const nameMap = new Map(
+      users.map((user) => [user.id, user.fullName ?? user.email])
+    );
+    const data = members.map((member) => ({
+      ...member,
+      userName: nameMap.get(member.userId) ?? member.userId,
+    }));
+    return NextResponse.json({ data });
   } catch (error) {
     return jsonError(error);
   }

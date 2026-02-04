@@ -4,6 +4,7 @@ import { ProjectNote } from "@/domain/entities/ProjectNote";
 import { ProjectDocument } from "@/domain/entities/ProjectDocument";
 import { User } from "@/domain/entities/User";
 import { PersonalNote } from "@/domain/entities/PersonalNote";
+import { ProjectTask, TaskStatus } from "@/domain/entities/ProjectTask";
 
 type ProjectRow = {
   id: string;
@@ -61,6 +62,18 @@ type UserRow = {
   updated_at: string;
 };
 
+type TaskRow = {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  assigned_to: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export const mapProject = (row: ProjectRow): Project => ({
   id: row.id,
   name: row.name,
@@ -105,6 +118,18 @@ export const mapDocument = (row: DocumentRow): ProjectDocument => ({
   mimeType: row.mime_type,
   sizeBytes: row.size_bytes,
   createdAt: row.created_at,
+});
+
+export const mapTask = (row: TaskRow): ProjectTask => ({
+  id: row.id,
+  projectId: row.project_id,
+  title: row.title,
+  description: row.description,
+  status: row.status,
+  assignedTo: row.assigned_to,
+  createdBy: row.created_by,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
 });
 
 export const mapUser = (row: UserRow): User => ({
