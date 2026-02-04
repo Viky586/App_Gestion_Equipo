@@ -28,6 +28,16 @@ export const updateNoteSchema = z.object({
   content: z.string().min(1, "El contenido es obligatorio.").optional(),
 });
 
+export const createPersonalNoteSchema = z.object({
+  title: z.string().min(1, "El titulo es obligatorio."),
+  content: z.string().min(1, "El contenido es obligatorio."),
+});
+
+export const updatePersonalNoteSchema = z.object({
+  title: z.string().min(1, "El titulo es obligatorio.").optional(),
+  content: z.string().min(1, "El contenido es obligatorio.").optional(),
+});
+
 export const inviteUserSchema = z.object({
   email: z.string().email("Email invalido."),
   role: z.enum(["ADMIN", "COLLAB"]),
