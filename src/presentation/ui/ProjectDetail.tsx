@@ -598,103 +598,112 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                           : undefined
                       }
                     >
-                      <CardContent className="space-y-2 pt-6">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium">{task.title}</p>
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-base font-semibold ${statusMeta.badge}`}
-                          >
+                      <CardContent className="pt-4">
+                        <details className="group">
+                          <summary className="flex cursor-pointer items-center justify-between gap-4 list-none [&::-webkit-details-marker]:hidden">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">
+                                {task.title}
+                              </p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                Responsable:{" "}
+                                {task.assignedToName ?? task.assignedTo}
+                              </p>
+                            </div>
                             <span
-                              className={`h-3 w-3 rounded-full ${statusMeta.dot}`}
-                              aria-hidden="true"
-                            />
-                            {statusMeta.label}
-                          </span>
-                        </div>
-                        {task.description ? (
-                          <p className="text-sm text-muted-foreground">
-                            {task.description}
-                          </p>
-                        ) : null}
-                        <p className="text-xs text-muted-foreground">
-                          Responsable: {task.assignedToName ?? task.assignedTo}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Creado por: {task.createdByName ?? task.createdBy}
-                        </p>
-                        {task.isArchived ? (
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-muted-foreground">
-                              Archivada
-                            </span>
-                            {currentUserIsPrimaryAdmin ? (
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() =>
-                                  updateTask(task.id, { archived: false })
-                                }
-                              >
-                                Reactivar
-                              </Button>
-                            ) : null}
-                          </div>
-                        ) : currentUserId === task.assignedTo ||
-                          currentUserRole === "ADMIN" ? (
-                          <div className="flex flex-wrap items-center gap-2">
-                            <select
-                              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                              value={task.status}
-                              onChange={(e) => {
-                                const nextStatus = e.target.value as Task["status"];
-                                if (nextStatus === "DONE") {
-                                  const shouldArchive = window.confirm(
-                                    "Archivar tarea?"
-                                  );
-                                  updateTask(task.id, {
-                                    status: nextStatus,
-                                    archived: shouldArchive,
-                                  });
-                                  return;
-                                }
-                                updateTask(task.id, { status: nextStatus });
-                              }}
+                              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-base font-semibold ${statusMeta.badge}`}
                             >
-                              <option value="PENDING">Pendiente</option>
-                              <option value="REVIEWED">Revisado</option>
-                              <option value="DONE">Terminado</option>
-                            </select>
-                            {currentUserRole === "ADMIN" ? (
-                              <>
+                              <span
+                                className={`h-3 w-3 rounded-full ${statusMeta.dot}`}
+                                aria-hidden="true"
+                              />
+                              {statusMeta.label}
+                            </span>
+                          </summary>
+                          <div className="mt-3 space-y-2">
+                            {task.description ? (
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                {task.description}
+                              </p>
+                            ) : null}
+                            <p className="text-xs text-muted-foreground">
+                              Creado por: {task.createdByName ?? task.createdBy}
+                            </p>
+                            {task.isArchived ? (
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  Archivada
+                                </span>
+                                {currentUserIsPrimaryAdmin ? (
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() =>
+                                      updateTask(task.id, { archived: false })
+                                    }
+                                  >
+                                    Reactivar
+                                  </Button>
+                                ) : null}
+                              </div>
+                            ) : currentUserId === task.assignedTo ||
+                              currentUserRole === "ADMIN" ? (
+                              <div className="flex flex-wrap items-center gap-2">
                                 <select
                                   className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                  value={task.assignedTo}
-                                  onChange={(e) =>
-                                    updateTask(task.id, {
-                                      assignedTo: e.target.value,
-                                    })
-                                  }
+                                  value={task.status}
+                                  onChange={(e) => {
+                                    const nextStatus = e.target.value as Task["status"];
+                                    if (nextStatus === "DONE") {
+                                      const shouldArchive = window.confirm(
+                                        "Archivar tarea?"
+                                      );
+                                      updateTask(task.id, {
+                                        status: nextStatus,
+                                        archived: shouldArchive,
+                                      });
+                                      return;
+                                    }
+                                    updateTask(task.id, { status: nextStatus });
+                                  }}
                                 >
-                                  {taskMembers.map((member) => (
-                                    <option
-                                      key={member.userId}
-                                      value={member.userId}
-                                    >
-                                      {member.userName}
-                                    </option>
-                                  ))}
+                                  <option value="PENDING">Pendiente</option>
+                                  <option value="REVIEWED">Revisado</option>
+                                  <option value="DONE">Terminado</option>
                                 </select>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteTask(task.id)}
-                                >
-                                  Eliminar
-                                </Button>
-                              </>
+                                {currentUserRole === "ADMIN" ? (
+                                  <>
+                                    <select
+                                      className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                      value={task.assignedTo}
+                                      onChange={(e) =>
+                                        updateTask(task.id, {
+                                          assignedTo: e.target.value,
+                                        })
+                                      }
+                                    >
+                                      {taskMembers.map((member) => (
+                                        <option
+                                          key={member.userId}
+                                          value={member.userId}
+                                        >
+                                          {member.userName}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteTask(task.id)}
+                                    >
+                                      Eliminar
+                                    </Button>
+                                  </>
+                                ) : null}
+                              </div>
                             ) : null}
                           </div>
-                        ) : null}
+                        </details>
                       </CardContent>
                     </Card>
                   );
