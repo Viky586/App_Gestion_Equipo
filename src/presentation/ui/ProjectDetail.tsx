@@ -357,7 +357,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="chat" className="space-y-4">
+      <Tabs defaultValue="tasks" className="space-y-4">
         <TabsList>
           <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="documents">Documentos</TabsTrigger>
@@ -381,7 +381,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                     <span className="font-medium">
                       {msg.authorName ?? msg.authorId}
                     </span>
-                    <span className="whitespace-pre-wrap break-words">
+                    <span className="whitespace-pre-wrap wrap-break-word">
                       : {msg.content}
                     </span>
                   </div>
@@ -593,7 +593,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                   const cardClassName = task.isArchived
                     ? "border-slate-200 bg-slate-50/70"
                     : isMine
-                      ? "border-amber-200/80 bg-amber-50/60"
+                      ? "border-emerald-200/80 bg-emerald-50/60"
                       : undefined;
                   return (
                     <Card
