@@ -589,14 +589,16 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                   const statusMeta = task.isArchived
                     ? archivedMeta
                     : getStatusMeta(task.status);
+                  const isMine = task.assignedTo === currentUserId;
+                  const cardClassName = task.isArchived
+                    ? "border-slate-200 bg-slate-50/70"
+                    : isMine
+                      ? "border-amber-200/80 bg-amber-50/60"
+                      : undefined;
                   return (
                     <Card
                       key={task.id}
-                      className={
-                        task.isArchived
-                          ? "border-slate-200 bg-slate-50/70"
-                          : undefined
-                      }
+                      className={cardClassName}
                     >
                       <CardContent className="pt-4">
                         <details className="group">
@@ -610,15 +612,34 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
                                 {task.assignedToName ?? task.assignedTo}
                               </p>
                             </div>
-                            <span
-                              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-base font-semibold ${statusMeta.badge}`}
-                            >
+                            <div className="flex items-center gap-2">
                               <span
-                                className={`h-3 w-3 rounded-full ${statusMeta.dot}`}
+                                className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-base font-semibold ${statusMeta.badge}`}
+                              >
+                                <span
+                                  className={`h-3 w-3 rounded-full ${statusMeta.dot}`}
+                                  aria-hidden="true"
+                                />
+                                {statusMeta.label}
+                              </span>
+                              <span
+                                className="text-muted-foreground transition-transform group-open:rotate-180"
                                 aria-hidden="true"
-                              />
-                              {statusMeta.label}
-                            </span>
+                              >
+                                <svg
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                              </span>
+                            </div>
                           </summary>
                           <div className="mt-3 space-y-2">
                             {task.description ? (
